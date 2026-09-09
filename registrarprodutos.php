@@ -1,13 +1,41 @@
-<?php include('inc/conexao.php'); ?>
+<?php include('inc/conexao.php');
+
+$sql = "SELECT * FROM tb_Produtos";
+
+$resultado = $conexao->query($sql);
+
+if (isset($_POST['produto'])) {
+    $nome = $_POST['nome'];
+    $descricao = $_POST['descricao'];
+    $preco = $_POST['preco'];
+    $qtdestoque = $_POST['quantidade'];
+    
+
+    $sql = "INSERT INTO tb_Produtos (nm_produto, ds_produto, vl_unitario) VALUES(?, ?, ?, ?)";
+
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("ssdi", $nome, $descricao, $preco,$qtdestoque);
+
+    if ($stmt->execute()) {
+        "cadastro adicionado!";
+    } else {
+        "Erro!";
+    }
+}
+
+
+?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Site Estoque</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
@@ -32,24 +60,27 @@
                     <div class="card-body">
                         <h1 class="card-title">Registre um produto:</h1>
                         <p class="card-text">Preencha os campos abaixo para registrar um novo produto.</p>
-                        <form>
+
+                        <form action="estoque.php" method="post">
                             <div class="mb-3">
                                 <label for="nome" class="form-label">Nome do Produto</label>
-                                <input type="text" class="form-control" id="nome" placeholder="Digite o nome do produto">
+                                <input type="text" class="form-control" name="nome" placeholder="Digite o nome do produto">
                             </div>
                             <div class="mb-3">
                                 <label for="descricao" class="form-label">Descrição</label>
-                                <textarea class="form-control" id="descricao" rows="3" placeholder="Digite a descrição do produto"></textarea>
+                                <textarea class="form-control" name="descricao" rows="3" placeholder="Digite a descrição do produto"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="preco" class="form-label">Preço</label>
-                                <input type="number" class="form-control" id="preco" placeholder="Digite o preço do produto">
+                                <input type="number" class="form-control" name="preco" placeholder="Digite o preço do produto">
                             </div>
                             <div class="mb-3">
                                 <label for="quantidade" class="form-label">Quantidade</label>
-                                <input type="number" class="form-control" id="quantidade" placeholder="Digite a quantidade do produto">
+                                <input type="number" class="form-control" name="quantidade" placeholder="Digite a quantidade do produto">
                             </div>
-                            <button type="submit" class="btn btn-primary">Registrar Produto</button>
+                            <div class="col-sm-3">
+                                <input style="margin: 24px;" type="submit" class="btn btn-outline-info" value="Cadastrar">
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -59,5 +90,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
-</html>
 
+</html>
