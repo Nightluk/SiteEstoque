@@ -1,7 +1,11 @@
-<?php include('inc/conexao.php'); ?>
+<?php include('inc/conexao.php');
+$sql = "SELECT * FROM tb_produtos";
+$resultado = $conexao->query($sql);
+?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"> </script>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
@@ -42,7 +47,21 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Os dados dos produtos serão inseridos aqui dinamicamente -->
+                                <?php
+                                if ($resultado->num_rows > 0) {
+                                    while ($produto = $resultado->fetch_assoc()) {
+                                        echo "<tr>";
+                                        echo "<td>" . $produto['cd_produto'] . "</td>";
+                                        echo "<td>" . $produto['nm_produto'] . "</td>";
+                                        echo "<td>" . $produto['ds_produto'] . "</td>";
+                                        echo "<td>" . $produto['qtd_estoque'] . "</td>";
+                                        echo "<td>" . $produto['vl_unitario'] . "</td>";
+                                        echo "<td><a class='btn btn-outline-danger' href='excluir.php?cd=" . $produto['cd_produto'] . "'>Excluir</a></td>";
+                                        echo "<td><a class='btn btn-outline-warning' href='editar.php?cd=" . $produto['cd_produto'] . "'>Editar</a></td>";
+                                        echo "</tr>";
+                                    }
+                                }
+                                ?>
                             </tbody>
                         </table>
                     </div>
@@ -53,5 +72,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
-</html>
 
+</html>
