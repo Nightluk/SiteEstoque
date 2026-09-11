@@ -1,18 +1,12 @@
-<?php 
+<?php
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "db_RegistroProdutos";
 
-    $servidor = "localhost";
-    $banco = "db_RegistroProdutos";
-    $usuario = "root";
-    $senha = "";
+$conexao = new mysqli($host, $user, $pass, $db);
 
-    $conexao = new mysqli($servidor, $usuario, $senha, $banco);
-
-    if($conexao->connect_error){
-        echo "Erro de conexão!" . $conexao->connect_error;
-    }else{
-        // echo "conectado";
-    }
-
-    
-
+if ($conexao->connect_error) {
+    die("Falha na conexão: " . $conexao->connect_error);
+}
 ?>
