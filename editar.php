@@ -1,24 +1,47 @@
-<?php include('inc/conexao.php');
+<?php
 include('inc/conexao.php');
-include('inc/trava.php'); 
+include('inc/trava.php');
 
 $mensagem = "";
 
-if (isset($_POST['produto'])) {
+if (isset($_GET['cd']) && !empty($_GET['cd'])) {
+    $cd_produto = intval($_GET['cd']);
+
+    $sql = "SELECT * FROM tb_Produtos WHERE cd_produto = ?";
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("i", $cd_produto);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+
+    if ($resultado->num_rows === 1) {
+        $produto = $resultado->fetch_assoc();
+    } else {
+        header('Location: estoque.php');
+        exit();
+    }
+} else {
+    header('Location: estoque.php');
+    exit();
+}
+
+if (isset($_POST['btn_atualizar'])) {
     $nome = $_POST['nome'];
     $descricao = $_POST['descricao'];
     $preco = $_POST['preco'];
     $qtdestoque = $_POST['quantidade'];
-    
-    $sql = "INSERT INTO tb_Produtos (nm_produto, ds_produto, vl_unitario, qtd_estoque) VALUES (?, ?, ?, ?)";
 
-    $stmt = $conexao->prepare($sql);
-    $stmt->bind_param("ssdi", $nome, $descricao, $preco, $qtdestoque);
+    $sql_update = "UPDATE tb_Produtos SET nm_produto = ?, ds_produto = ?, vl_unitario = ?, qtd_estoque = ? WHERE cd_produto = ?";
+    $stmt_update = $conexao->prepare($sql_update);
+    $stmt_update->bind_param("ssdii", $nome, $descricao, $preco, $qtdestoque, $cd_produto);
 
-    if ($stmt->execute()) {
-        $mensagem = "<div class='alert alert-success mt-3'>Produto cadastrado com sucesso!</div>";
+    if ($stmt_update->execute()) {
+        $mensagem = "<div class='alert alert-success mt-3'>Produto atualizado com sucesso! <a href='estoque.php' class='alert-link'>Voltar ao estoque</a></div>";
+        $produto['nm_produto'] = $nome;
+        $produto['ds_produto'] = $descricao;
+        $produto['vl_unitario'] = $preco;
+        $produto['qtd_estoque'] = $qtdestoque;
     } else {
-        $mensagem = "<div class='alert alert-danger mt-3'>Erro ao cadastrar: " . $stmt->error . "</div>";
+        $mensagem = "<div class='alert alert-danger mt-3'>Erro ao atualizar: " . $stmt_update->error . "</div>";
     }
 }
 ?>
@@ -29,7 +52,7 @@ if (isset($_POST['produto'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Estoque - Registrar</title>
+    <title>Site Estoque - Editar Produto</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 
@@ -58,29 +81,31 @@ if (isset($_POST['produto'])) {
             <div class="col-md-12">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h1 class="card-title">Registre um produto:</h1>
-                        <p class="card-text">Preencha os campos abaixo para registrar um novo produto.</p>
+                        <h1 class="card-title">Editar produto #<?php echo $produto['cd_produto']; ?></h1>
+                        <p class="card-text">Altere as informações necessárias e clique em salvar.</p>
 
                         <?php echo $mensagem; ?>
+
                         <form action="" method="post">
                             <div class="mb-3">
                                 <label for="nome" class="form-label">Nome do Produto</label>
-                                <input type="text" class="form-control" name="nome" placeholder="Digite o nome do produto" required>
+                                <input type="text" class="form-control" name="nome" value="<?php echo htmlspecialchars($produto['nm_produto']); ?>" required>
                             </div>
                             <div class="mb-3">
                                 <label for="descricao" class="form-label">Descrição</label>
-                                <textarea class="form-control" name="descricao" rows="3" placeholder="Digite a descrição do produto"></textarea>
+                                <textarea class="form-control" name="descricao" rows="3"><?php echo htmlspecialchars($produto['ds_produto']); ?></textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="preco" class="form-label">Preço</label>
-                                <input type="number" step="0.01" class="form-control" name="preco" placeholder="Digite o preço do produto" required>
+                                <input type="number" step="0.01" class="form-control" name="preco" value="<?php echo $produto['vl_unitario']; ?>" required>
                             </div>
                             <div class="mb-3">
                                 <label for="quantidade" class="form-label">Quantidade</label>
-                                <input type="number" class="form-control" name="quantidade" placeholder="Digite a quantidade do produto" required>
+                                <input type="number" class="form-control" name="quantidade" value="<?php echo $produto['qtd_estoque']; ?>" required>
                             </div>
-                            <div class="col-sm-3">
-                                <input style="margin: 24px 0px;" type="submit" name="produto" class="btn btn-outline-info" value="Cadastrar">
+                            <div class="d-flex gap-2">
+                                <input type="submit" name="btn_atualizar" class="btn btn-primary" value="Salvar Alterações">
+                                <a href="estoque.php" class="btn btn-secondary">Cancelar</a>
                             </div>
                         </form>
                     </div>
