@@ -1,8 +1,6 @@
 <?php 
 include('inc/conexao.php'); 
 include('inc/trava.php');
-
-// Consulta CORRIGIDA para buscar os produtos e total vendido na tabela correta (tb_Vendas_Itens)
 $sql = "SELECT p.nm_produto, COALESCE(SUM(vi.qtd_item), 0) AS total_vendido 
         FROM tb_Produtos p 
         LEFT JOIN tb_Vendas_Itens vi ON p.cd_produto = vi.cd_produto 
